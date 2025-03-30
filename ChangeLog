@@ -1,0 +1,12 @@
+2021-08-18  Thomas Perl <m@thp.io>
+
+	chro.mono 1.1.1
+
+	* Replace a CC Sampling+-licensed sound effect with a CC0-licensed
+	sound effect for DFSG, and mention sound file names in about box
+
+2021-08-12  Thomas Perl <m@thp.io>
+
+	chro.mono 1.1.0
+
+	* Initial open source release of chro.mono

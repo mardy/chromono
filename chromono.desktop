@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=chro.mono
+Comment=Very circular color puzzle game
+Exec=chromono
+Icon=chromono
+Categories=Game;

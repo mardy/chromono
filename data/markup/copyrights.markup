@@ -1,0 +1,105 @@
+chro.mono: A very circular color puzzle game
+https://thp.io/2013/chromono/
+Copyright (C) 2013-2021 Thomas Perl <m@thp.io>
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
+
+This game uses certain third party code, libraries, audio and
+fonts. The licenses for these are listed below.
+
+=Public Domain Music
+
+Creative Commons - CC0 1.0 Universal (Public Domain)
+http://creativecommons.org/publicdomain/zero/1.0/
+
+data/sounds/music_snapper.ogg
+90 bouncing strings with field by Snapper4298
+http://freesound.org/people/Snapper4298/sounds/161440/
+
+data/sounds/music_subd.ogg
+loop meditations no drums by Sub-d
+http://freesound.org/people/Sub-d/sounds/49900/
+
+data/sounds/music_alveg.ogg
+justkidding by alveg
+http://freesound.org/people/alveg/sounds/69258/
+
+data/sounds/music_kasa90.ogg
+Perc Loop #2 by kasa90
+http://freesound.org/people/kasa90/sounds/162124/
+
+=CC BY 3.0 Sound Effects
+
+Creative Commons - Attribution 3.0 Unported (CC BY 3.0)
+http://creativecommons.org/licenses/by/3.0/
+
+data/sounds/sound_level_complete.ogg
+buttonchime02up by JustinBW
+http://freesound.org/people/JustinBW/sounds/80921/
+
+data/sounds/sound_button_press.ogg
+data/sounds/sound_button_release.ogg
+Button Click 01 by Fats Million
+http://freesound.org/people/Fats%20Million/sounds/187781/
+
+data/sounds/sound_toggle_switch_on.ogg
+data/sounds/sound_toggle_switch_off.ogg
+fender telecaster toggle switch (3 way) by ShotgunPicker
+http://freesound.org/people/ShotgunPicker/sounds/132718/
+
+data/sounds/sound_page_transition.ogg
+data/sounds/sound_color_changes_to_right.ogg
+data/sounds/sound_color_changes_to_wrong.ogg
+060701B by Freed
+http://freesound.org/people/Freed/sounds/3017/
+
+data/sounds/sound_chain_breaks.ogg
+JBF Plywood Breaking by cmusounddesign
+http://freesound.org/people/cmusounddesign/sounds/96167/
+
+data/sounds/sound_movable_sphere_press.ogg
+data/sounds/sound_movable_sphere_release.ogg
+31 PassosPisoChãoBatido slower by Leossom
+http://freesound.org/people/Leossom/sounds/169635/
+
+=CC0 (Public Domain) Sound Effects
+
+Creative Commons - CC0 1.0 Universal (Public Domain)
+http://creativecommons.org/publicdomain/zero/1.0/
+
+data/sounds/sound_sphere_hits_wall.ogg
+studs moln v1 by simon.rue
+http://freesound.org/people/simon.rue/sounds/49963/
+
+sound_level_locked_message_box.ogg
+Click Metronome atonal low by Jack_Master
+https://freesound.org/people/Jack_Master/sounds/566887/
+
+=Source Sans Pro Semi-Bold
+
+https://github.com/adobe/source-sans-pro/
+
+Copyright 2010, 2012 Adobe Systems Incorporated
+(http://www.adobe.com/), with Reserved Font Name 'Source'.
+
+All Rights Reserved.
+
+Source is a trademark of Adobe Systems Incorporated in the
+United States and/or other countries.
+
+This Font Software is licensed under the SIL Open Font License,
+Version 1.1: http://scripts.sil.org/OFL
