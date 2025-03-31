@@ -23,7 +23,7 @@ DEPENDENCIES
  - pkg-config 0.29.1
  - Python 3.3
  - SDL 2.0.10
- - OpenGL 2.0
+ - OpenGL 3.2
  - zlib 1.2.11
  - libvorbisfile 1.3.6
 
