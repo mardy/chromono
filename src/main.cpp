@@ -271,6 +271,32 @@ Platform::storage_folder()
     return folder;
 }
 
+/* We need to define the SDL_mutex structure in order to subclass from it. The
+ * actual contents don't matter, since we aren't really allocating it here. */
+struct SDL_mutex {};
+
+class Platform::MutexPriv: public SDL_mutex {};
+
+Platform::Mutex::Mutex():
+    priv(static_cast<Platform::MutexPriv*>(SDL_CreateMutex()))
+{
+}
+
+Platform::Mutex::~Mutex()
+{
+    SDL_DestroyMutex(priv);
+}
+
+bool Platform::Mutex::lock()
+{
+    return SDL_LockMutex(priv) == 0;
+}
+
+void Platform::Mutex::unlock()
+{
+    SDL_UnlockMutex(priv);
+}
+
 long
 Util::ticks()
 {

@@ -45,6 +45,19 @@ class Platform {
 
         static void set_fullscreen(bool fullscreen);
 
+        /* Threading */
+        class MutexPriv;
+        class Mutex final {
+        public:
+            Mutex();
+            ~Mutex();
+            bool lock();
+            void unlock();
+
+        private:
+            MutexPriv *priv;
+        };
+
     private:
         static effect_func_t effect_func;
         static void *effect_func_user_data;
