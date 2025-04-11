@@ -30,6 +30,8 @@ typedef void (*effect_func_t)(enum Sound::Effect sound, void *user_data);
 
 class Platform {
     public:
+        static bool is_big_endian();
+
         /* Storage */
         static const char *storage_folder();
 

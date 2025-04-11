@@ -60,7 +60,8 @@ decode_ogg_in_memory(const unsigned char *encoded_ogg, size_t encoded_ogg_length
                 *decoded_samples = (short *)realloc(*decoded_samples, allocated_size);
             }
 
-            long res = ov_read(&ovf, ((char *)*decoded_samples) + pos, allocated_size - pos, 0, 2, 1, 0);
+            long res = ov_read(&ovf, ((char *)*decoded_samples) + pos, allocated_size - pos,
+                               Platform::is_big_endian(), 2, 1, 0);
             if (res < 0) {
                 free(*decoded_samples);
                 return 0;

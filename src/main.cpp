@@ -219,6 +219,12 @@ PlatformPriv::process(Circle1DEventHandler *handler)
     return true;
 }
 
+bool
+Platform::is_big_endian()
+{
+    return SDL_BYTEORDER == SDL_BIG_ENDIAN;
+}
+
 void
 Platform::register_audio(audio_func_t audio_func, void *user_data)
 {
