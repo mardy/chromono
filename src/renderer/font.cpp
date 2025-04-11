@@ -42,10 +42,11 @@ FontPriv::FontPriv()
     : fontdata()
     , texture()
 {
-    unsigned char fontpixels[STB_SOMEFONT_BITMAP_HEIGHT_POW2][STB_SOMEFONT_BITMAP_WIDTH];
+    auto fontpixels = new unsigned char[STB_SOMEFONT_BITMAP_HEIGHT_POW2][STB_SOMEFONT_BITMAP_WIDTH];
     STB_SOMEFONT_CREATE(fontdata, fontpixels, STB_SOMEFONT_BITMAP_HEIGHT_POW2);
     texture.setalpha(STB_SOMEFONT_BITMAP_WIDTH, STB_SOMEFONT_BITMAP_HEIGHT_POW2,
             (const unsigned char*)fontpixels);
+    delete []fontpixels;
 }
 
 FontPriv::~FontPriv()
