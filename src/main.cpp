@@ -63,12 +63,13 @@ PlatformPriv::PlatformPriv()
     : audio_func(NULL)
     , audio_func_user_data(NULL)
 {
-    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER);
+    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_AUDIO);
 
     SDL_AudioSpec desired;
     memset(&desired, 0, sizeof(desired));
     desired.freq = 22050;
-    desired.format = AUDIO_S16;
+    desired.format = SDL_BYTEORDER == SDL_BIG_ENDIAN ?
+        AUDIO_S16MSB : AUDIO_S16LSB;
     desired.channels = 1;
     desired.samples = Constants::DEFAULT_AUDIO_BUFFER;
     desired.callback = PlatformPriv::audio_callback;
