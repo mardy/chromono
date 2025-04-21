@@ -44,7 +44,11 @@ namespace Constants {
     bool RENDERED_LEVEL_PREVIEWS = true;
     bool UNLOCK_ALL = false;
 
+#if defined(__wii__) || defined(__gamecube__)
+    float MUSIC_VOLUME = 0.5;
+#else
     float MUSIC_VOLUME = 0.05;
+#endif
     float EFFECT_VOLUME = 0.3;
 
     int DEFAULT_AUDIO_BUFFER = 2048;
