@@ -4,7 +4,7 @@ project(chromono)
 
 add_definitions(-Wall -Werror -Wno-error=unused-variable)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 
 include_directories("${chromono_SOURCE_DIR}/src")
 include_directories("${chromono_SOURCE_DIR}/src/renderer")

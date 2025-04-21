@@ -23,6 +23,10 @@
 #include "game.h"
 #include "util.h"
 
+#if defined(__wii__) || defined(__gamecube__)
+#include "opengx_shaders.h"
+#endif
+
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -63,6 +67,11 @@ PlatformPriv::PlatformPriv()
     : audio_func(NULL)
     , audio_func_user_data(NULL)
 {
+#if defined(__wii__) || defined(__gamecube__)
+    setup_opengx_shaders();
+    setenv("OPENGX_DEBUG", "warnings", 1);
+#endif
+
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_AUDIO);
 
     SDL_AudioSpec desired;
@@ -317,7 +326,11 @@ main(int argc, char *argv[])
 
     priv.window = SDL_CreateWindow("chro.mono",
             SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+#if defined(__wii__) || defined(__gamecube__)
+            640, 480,
+#else
             Constants::WORLD_WIDTH, Constants::WORLD_HEIGHT,
+#endif
             SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
