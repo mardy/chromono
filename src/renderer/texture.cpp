@@ -76,8 +76,15 @@ Texture::teximage(GLint format, const unsigned char *data)
     int w = 2;
     int h = 2;
 
+#if defined(__wii__) || defined(__gamecube__)
+    /* Avoid using too much memory, we don't need texture sides to be power of
+     * two */
+    w = (m_width + 3) / 4 * 4;
+    h = (m_height + 3) / 4 * 4;
+#else
     while (m_width > 0 && w < m_width) w *= 2;
     while (m_height > 0 && h < m_height) h *= 2;
+#endif
 
     m_subwidth = (float)m_width / (float)w;
     m_subheight = (float)m_height / (float)h;
