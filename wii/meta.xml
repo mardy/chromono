@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<app version="1">
+  <name>chro.mono</name>
+  <coder>Thomas Perl, Alberto Mardegan (port)</coder>
+  <version>1.1.1-git1</version>
+  <release_date>20250421912132</release_date>
+  <short_description>Circle color puzzle game</short_description>
+  <long_description>All those half-colored spheres could really need some help. And with that, we obviously mean your help, otherwise this would probably not be a game, but a movie or something. Grab those fully-colored spheres and share the color (and the correct one at that) to bring the world order back to normal.</long_description>
+</app>
