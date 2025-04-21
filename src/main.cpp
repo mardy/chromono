@@ -257,6 +257,11 @@ Platform::set_fullscreen(bool fullscreen)
 const char *
 Platform::storage_folder()
 {
+#if defined(__wii__) || defined(__gamecube__)
+    const char *folder = "/apps/chromono/";
+    ::mkdir(folder, 0777);
+    return folder;
+#else
     char *folder = NULL;
 
     if (folder == NULL) {
@@ -285,6 +290,7 @@ Platform::storage_folder()
     }
 
     return folder;
+#endif
 }
 
 /* We need to define the SDL_mutex structure in order to subclass from it. The
