@@ -37,6 +37,7 @@ class PlatformPriv {
         PlatformPriv();
         ~PlatformPriv();
         bool process(Circle1DEventHandler *handler);
+        void add_controller(int joystick_index);
 
         static void audio_callback(void *userdata, Uint8 *stream, int len);
 
@@ -47,6 +48,7 @@ class PlatformPriv {
     private:
         audio_func_t audio_func;
         void *audio_func_user_data;
+        SDL_GameController *controller;
 
         friend class Platform;
 };
@@ -66,13 +68,14 @@ PlatformPriv::audio_callback(void *userdata, Uint8 *stream, int len)
 PlatformPriv::PlatformPriv()
     : audio_func(NULL)
     , audio_func_user_data(NULL)
+    , controller(NULL)
 {
 #if defined(__wii__) || defined(__gamecube__)
     setup_opengx_shaders();
     setenv("OPENGX_DEBUG", "warnings", 1);
 #endif
 
-    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_AUDIO);
+    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER);
 
     SDL_AudioSpec desired;
     memset(&desired, 0, sizeof(desired));
@@ -85,11 +88,22 @@ PlatformPriv::PlatformPriv()
     desired.userdata = this;
     SDL_OpenAudio(&desired, NULL);
 
+    int num_joysticks = SDL_NumJoysticks();
+    for (int i = 0; i < num_joysticks; i++) {
+        if (SDL_IsGameController(i)) {
+            add_controller(i);
+        }
+    }
+
     platform_priv = this;
 }
 
 PlatformPriv::~PlatformPriv()
 {
+    if (controller) {
+        SDL_GameControllerClose(controller);
+    }
+
     SDL_CloseAudio();
 
     SDL_Quit();
@@ -223,10 +237,25 @@ PlatformPriv::process(Circle1DEventHandler *handler)
                 height = event.window.data2;
                 static_cast<Game *>(handler)->resize(width, height);
             }
+        } else if (event.type == SDL_CONTROLLERDEVICEADDED) {
+            add_controller(event.cdevice.which);
+        } else if (event.type == SDL_CONTROLLERBUTTONDOWN) {
+            switch (event.cbutton.button) {
+            case SDL_CONTROLLER_BUTTON_BACK:
+                return false;
+            }
         }
     }
 
     return true;
+}
+
+void
+PlatformPriv::add_controller(int joystick_index)
+{
+    if (!controller) {
+        controller = SDL_GameControllerOpen(joystick_index);
+    }
 }
 
 bool
