@@ -1,3 +1,61 @@
+2026-01-02  Thomas Perl <m@thp.io>
+
+	* CMakeLists.txt: Add support for building with devkitPPC
+	* README: Document how to cross-build for Wii
+
+2025-11-07  Thomas Perl <m@thp.io>
+
+	chro.mono 1.1.3
+
+	* Replace pthreads with SDL2-based mutex implementation
+	for cross-platform compatibility (Wii, Win32); based on
+	an initial patch by Alberto Mardegan
+	* Fix cross-build for Win32
+
+2025-10-14  Thomas Perl <m@thp.io>
+
+	* Allow building against OpenGL ES 2.0 in addition to OpenGL 3.2;
+	fix documented OpenGL requirement in README (thanks Alberto Mardegan)
+
+2025-09-14  Chris Hofstaedtler <zeha@debian.org>
+
+	* src/highscoresscreen.cpp: Fix build on GCC 15 (Debian bug 1114081)
+
+2025-04-22  Alberto Mardegan <mardy@users.sourceforge.net>
+
+	* Port to Wii using devkitPro and OpenGX
+
+2025-04-20  Alberto Mardegan <mardy@users.sourceforge.net>
+
+	* src/renderer/framebuffer.cpp: clear texture on initialization;
+	OpenGL does not guarantee that the texture is initialized to all zeroes.
+	Skipping the texture initialization can result in garbage being present
+	in the effect overlay template.
+
+2025-04-19  Alberto Mardegan <mardy@users.sourceforge.net>
+
+	* src/main.cpp: Fix SDL audio initialization for big endian platforms;
+	add SDL_INIT_AUDIO to SDL_Init call.
+
+2025-04-11  Alberto Mardegan <mardy@users.sourceforge.net>
+
+	* src/mixer.cpp, src/platform.h, src/main.cpp: Tell libvorbis about
+	the platform's endianness (for Wii)
+	* src/renderer/font.cpp: Allocate font pixels on the heap (otherwise
+	crashes on Wii due to stack size)
+
+2025-03-30  Alberto Mardegan <mardy@users.sourceforge.net>
+
+	* src/circle1d/serialize.h: Add missing include (stdint.h) for GCC 14
+
+2024-09-27  Thomas Perl <m@thp.io>
+
+	chro.mono 1.1.2
+
+	* Support for Windows XP and cross-compilation; requires an
+	OpenGL 3.0-compatible graphics card due to FBO usage (tested
+	with GeForce 9400M).
+
 2021-08-18  Thomas Perl <m@thp.io>
 
 	chro.mono 1.1.1

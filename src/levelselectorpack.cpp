@@ -146,7 +146,7 @@ LevelSelectorPack::render(OpenGLRenderer *renderer)
             float y = o->pos.y - h / 1.9;
             renderer->icon(Icons::LOCK, x, y, w, h, RGB(0.0, 0.0, 0.0), 0.2);
         } else if (completed < levels) {
-            sprintf(tmp, "%d/%d", completed, levels);
+            snprintf(tmp, sizeof(tmp), "%d/%d", completed, levels);
             renderer->text_measure(tmp, &w, &h, FONT_LARGE);
             renderer->text_render(tmp, o->pos.x - w/2.0, o->pos.y - h/2.0, FONT_LARGE, 1.0, color);
         } else {
@@ -241,7 +241,7 @@ LevelSelectorPack::select_pack(int pack_id)
 
     if (missing_stars > 0 && !Constants::UNLOCK_ALL) {
         char tmp[1024];
-        sprintf(tmp, (missing_stars == 1) ? "Need %d more star to unlock" :
+        snprintf(tmp, sizeof(tmp), (missing_stars == 1) ? "Need %d more star to unlock" :
                 "Need %d more stars to unlock", missing_stars);
         game->show_message(tmp);
         Platform::play(Sound::LEVEL_LOCKED_MESSAGE_BOX);

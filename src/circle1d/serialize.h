@@ -21,6 +21,7 @@
 #ifndef CIRCLE1D_SERIALIZE_H
 #define CIRCLE1D_SERIALIZE_H
 
+#include <stdint.h>
 #include <stdlib.h>
 
 #include "rgb.h"

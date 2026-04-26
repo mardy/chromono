@@ -111,7 +111,7 @@ LevelSelectorGrid::render_page_internal(OpenGLRenderer *renderer, PagePreviewInf
                     Colors::LOCK, 0.5);
 
             char tmp[1024];
-            sprintf(tmp, "Need %d stars", level->required_stars);
+            snprintf(tmp, sizeof(tmp), "Need %d stars", level->required_stars);
 
             float w, h;
             renderer->text_measure(tmp, &w, &h, FONT_SMALL);
@@ -134,7 +134,7 @@ LevelSelectorGrid::render_page_internal(OpenGLRenderer *renderer, PagePreviewInf
         if (!Constants::RENDERED_LEVEL_PREVIEWS) {
             float w, h;
             char tmp[1024];
-            sprintf(tmp, "%d", level->level - first_level + 1);
+            snprintf(tmp, sizeof(tmp), "%d", level->level - first_level + 1);
             renderer->text_measure(tmp, &w, &h, FONT_XLARGE);
             renderer->text_render(tmp, pos.x + (size.x - w) / 2.0,
                     pos.y + (size.y - h) / 2.0, FONT_XLARGE,
@@ -180,7 +180,7 @@ LevelSelectorGrid::handle(Circle1DEvent *event)
                         game->start_level(level);
                     } else {
                         char tmp[1024];
-                        sprintf(tmp, (missing_stars == 1) ? "Need %d more star to unlock" :
+                        snprintf(tmp, sizeof(tmp), (missing_stars == 1) ? "Need %d more star to unlock" :
                                 "Need %d more stars to unlock", missing_stars);
                         game->show_message(tmp);
                         Platform::play(Sound::LEVEL_LOCKED_MESSAGE_BOX);

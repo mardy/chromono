@@ -74,12 +74,6 @@ class Game : public Circle1DEventHandler {
         bool is_gameplay() { return current_page == &gameplay; }
 
 
-        /**
-         * "Semi-Public API" to be used for development
-         **/
-        void screenshot();
-
-
         void show_message(const char *message) {
             message_box.show(message);
         }

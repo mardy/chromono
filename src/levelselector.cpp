@@ -92,7 +92,7 @@ LevelSelector::render(OpenGLRenderer *renderer)
     int have_stars = game->get_score_manager()->stars();
 
     char tmp[1024];
-    sprintf(tmp, "%d", have_stars);
+    snprintf(tmp, sizeof(tmp), "%d", have_stars);
 
     int star_w, star_h;
     star_w = star_h = 30;

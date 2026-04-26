@@ -32,9 +32,15 @@ Shader::Shader(enum Shader::Type type, Resource *resource)
     ResourceAccess access(resource);
     std::string source((const char*)access.data(), access.size());
 
-    const char *source_str = source.c_str();
+    const char *sources[] = {
+#if defined(USE_OPENGL_ES)
+        "#version 100\n",
+        "precision mediump float;\n",
+#endif
+        source.c_str(),
+    };
 
-    glShaderSource(m_id, 1, &source_str, NULL);
+    glShaderSource(m_id, sizeof(sources)/sizeof(sources[0]), sources, NULL);
 
     glCompileShader(m_id);
     GLint success = GL_FALSE;
@@ -43,13 +49,20 @@ Shader::Shader(enum Shader::Type type, Resource *resource)
 #if defined(USE_DEBUG_PRINTF)
         GLint size = 0;
         glGetShaderiv(m_id, GL_INFO_LOG_LENGTH, &size);
+        ++size;
         char *tmp = new char[size];
+        memset(tmp, 0, size);
         glGetShaderInfoLog(m_id, size, NULL, tmp);
         printf("== %s ==\n%s\n", access.name(), tmp);
         delete [] tmp;
 
         int lineno = 1;
-        char *current_line = (char *)source_str;
+
+#if defined(USE_OPENGL_ES)
+        // For OpenGL ES, we prepend two lines to the shader
+        lineno += 2;
+#endif
+        char *current_line = (char *)sources[(sizeof(sources)/sizeof(sources[0]))-1];
         while (true) {
             char *next = current_line;
             while (*next != '\0' && *next != '\n') {

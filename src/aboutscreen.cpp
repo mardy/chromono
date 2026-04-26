@@ -39,11 +39,21 @@ AboutScreen::render(OpenGLRenderer *renderer)
     float y = 120;
 
     render_text_center(renderer, "chro.mono", FONT_XLARGE, &y);
-    render_text_center(renderer, "Version 1.1.1", FONT_MEDIUM, &y);
-    render_text_center(renderer, "Open Source Release", FONT_SMALL, &y);
+    render_text_center(renderer, "Version 1.1.3", FONT_MEDIUM, &y);
+    const char *tagline =
+        "Open Source Release"
+#if defined(BUILD_FOR_WII)
+        ", using SDL2 and OpenGX on Wii"
+#elif defined(USE_OPENGL_ES)
+        ", using SDL2 and OpenGL ES 2.0"
+#else
+        ", using SDL2 and OpenGL 3.2"
+#endif
+    ;
+    render_text_center(renderer, tagline, FONT_SMALL, &y);
 
     y += 30;
-    render_text_center(renderer, "Copyright (c) 2021 Thomas Perl", FONT_MEDIUM, &y);
+    render_text_center(renderer, "Copyright (c) 2026 Thomas Perl", FONT_MEDIUM, &y);
     render_text_center(renderer, "https://thp.io/2013/chromono/", FONT_MEDIUM, &y);
 
     y += 30;

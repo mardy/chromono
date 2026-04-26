@@ -98,9 +98,9 @@ get_storage_filename()
 {
     const char *folder = Platform::storage_folder();
 
-    char *filename;
-    if (folder != NULL && asprintf(&filename, "%s/scores", folder) != -1) {
-        return filename;
+    if (folder != NULL) {
+        std::string tmp = Util::format("%s/scores", folder);
+        return strdup(tmp.c_str());
     }
 
     return strdup(".chromono_scores");
@@ -229,35 +229,6 @@ void Game::render() {
     renderer->text_gc();
 
     performance.frame();
-}
-
-void
-Game::screenshot()
-{
-#if 0
-    /* Save screenshots of all levels to disk, then exit */
-    char tmp[512];
-    int preroll_physics_ticks = 100;
-
-    while (!renderer->ready()) { /* wait */ }
-
-    for (int i=0; i<level_manager.count(); i++) {
-        level_manager.start(i);
-        scene.simulate(preroll_physics_ticks);
-
-        Framebuffer fb(renderer, render->m_width, renderer->m_height);
-        fb.bind();
-
-        renderer->begin();
-        renderer->background(scene.background_color);
-        scene.render(renderer);
-        renderer->finish();
-
-        fb.unbind();
-        sprintf(tmp, "level%03d.rgb", i+1);
-        fb.texture()->save(tmp);
-    }
-#endif
 }
 
 void

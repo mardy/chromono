@@ -42,6 +42,10 @@ HighScoresScreen::HighScoresScreen(Game *game, Page *parent, RGB color,
     , ticks_since_last_move(0)
 {
     char *p = (char*)textfile.data();
+    if (p == NULL) {
+        SHADY_DEBUG_PRINTF("No text file data available");
+        return;
+    }
     char *end = p + textfile.size();
     while (p < end) {
         char *end = strchr(p, '\n');

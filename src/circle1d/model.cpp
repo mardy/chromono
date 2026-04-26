@@ -521,43 +521,34 @@ Scene::save(const std::string &filename)
     sav << int(objects.size());
 
     std::list<Object*>::iterator it;
-    int i = 0;
     for (it=objects.begin(); it!=objects.end(); ++it) {
         Object *o = *it;
         sav << o->pos << o->size << o->flags;
         sav << o->color << o->target_color << o->desired;
         sav << o->last_pos << o->velocity << o->force;
-
-        i++;
     }
 
     sav << int(joints.size());
 
     std::list<Joint*>::iterator jit;
-    i = 0;
     for (jit=joints.begin(); jit!=joints.end(); ++jit) {
         Joint *j = *jit;
 
         sav << object_id(j->a) << object_id(j->b) << j->flags << j->distance;
-
-        i++;
     }
 
     sav << int(decals.size());
 
     std::list<HintDecal*>::iterator hit;
-    i = 0;
     for (hit=decals.begin(); hit!=decals.end(); ++hit) {
         HintDecal *h = *hit;
 
         sav << int(h->decal) << h->x << h->y;
-        i++;
     }
 
     sav << int(behaviors.size());
 
     std::list<Circle1DBehavior*>::iterator bit;
-    i = 0;
     for (bit=behaviors.begin(); bit!=behaviors.end(); ++bit) {
         Circle1DBehavior *b = *bit;
 
@@ -568,8 +559,6 @@ Scene::save(const std::string &filename)
         } else {
             sav << "";
         }
-
-        i++;
     }
 
     sav.write_file(filename);

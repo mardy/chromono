@@ -116,12 +116,12 @@ ResultsScreen::render(OpenGLRenderer *renderer)
     float text_spacing = -4.0;
     char tmp[1024+44];
     char score_time_str[1024];
-    sprintf(tmp, "Level %d complete", (m_level + 1));
+    snprintf(tmp, sizeof(tmp), "Level %d complete", (m_level + 1));
     render_text_center(renderer, tmp, FONT_MEDIUM, &y);
     y += text_spacing;
 
     Util::format_score_time(m_score, score_time_str, sizeof(score_time_str));
-    sprintf(tmp, "Time taken: %s", score_time_str);
+    snprintf(tmp, sizeof(tmp), "Time taken: %s", score_time_str);
     render_text_center(renderer, tmp, FONT_MEDIUM, &y);
     y += text_spacing;
 
@@ -129,7 +129,7 @@ ResultsScreen::render(OpenGLRenderer *renderer)
         // Show requirement for next better star count
         Util::format_score_time(info->stars_time[stars_count],
                 score_time_str, sizeof(score_time_str));
-        sprintf(tmp, "Time needed for %d %s: %s",
+        snprintf(tmp, sizeof(tmp), "Time needed for %d %s: %s",
                 stars_count + 1,
                 ((stars_count + 1) == 1) ? "star" : "stars",
                 score_time_str);
@@ -138,7 +138,7 @@ ResultsScreen::render(OpenGLRenderer *renderer)
     }
 
     if (m_new_highscore && stars_count == 3) {
-        sprintf(tmp, "New highscore!");
+        snprintf(tmp, sizeof(tmp), "New highscore!");
         render_text_center(renderer, tmp, FONT_MEDIUM, &y);
         y += text_spacing;
     }

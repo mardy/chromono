@@ -27,7 +27,6 @@
 
 #include <list>
 #include <algorithm>
-#include <pthread.h>
 
 #define MIXER_MAX_CHANNELS 4
 #define MIXER_BACKGROUNDS 2
@@ -60,7 +59,8 @@ decode_ogg_in_memory(const unsigned char *encoded_ogg, size_t encoded_ogg_length
                 *decoded_samples = (short *)realloc(*decoded_samples, allocated_size);
             }
 
-            long res = ov_read(&ovf, ((char *)*decoded_samples) + pos, allocated_size - pos, 0, 2, 1, 0);
+            long res = ov_read(&ovf, ((char *)*decoded_samples) + pos, allocated_size - pos,
+                               Platform::is_big_endian(), 2, 1, 0);
             if (res < 0) {
                 free(*decoded_samples);
                 return 0;
@@ -199,7 +199,7 @@ class Player {
         void fill(short *stream, int len);
         float mix(short *dst, short *src, int len);
 
-        pthread_mutex_t mutex;
+        Platform::Mutex mutex;
 
         // Two backgrounds for fading between them
         Playback background[MIXER_BACKGROUNDS];
@@ -412,14 +412,12 @@ Player::audio_func(short *stream, int len, void *user_data)
 Player::Player()
     : amplitude(0)
 {
-    pthread_mutex_init(&mutex, NULL);
     Platform::register_audio(Player::audio_func, this);
 }
 
 Player::~Player()
 {
     Platform::register_audio(NULL, NULL);
-    pthread_mutex_destroy(&mutex);
 }
 
 void
@@ -431,14 +429,13 @@ Player::sfx(Buffer *buffer, float rate, float volume)
 
     int i = 0;
 
-    if (pthread_mutex_lock(&mutex) == 0) {
+    if (auto lock = MutexLock(mutex)) {
         for (i=0; i<MIXER_MAX_CHANNELS; i++) {
             if (effects[i].finished()) {
                 effects[i].start(buffer, rate, volume);
                 break;
             }
         }
-        pthread_mutex_unlock(&mutex);
     }
 
     if (i == MIXER_MAX_CHANNELS) {
@@ -455,7 +452,7 @@ Player::music(Buffer *buffer, float rate, float volume)
     // "a" is always the current (main) music,
     // "b" is the last (fading out) music
 
-    if (pthread_mutex_lock(&mutex) == 0) {
+    if (auto lock = MutexLock(mutex)) {
         if (a->is_buffer(buffer)) {
             // Music is already playing - just update rate/volume
             a->stop_fade_out();
@@ -474,14 +471,13 @@ Player::music(Buffer *buffer, float rate, float volume)
                 a->stop();
             }
         }
-        pthread_mutex_unlock(&mutex);
     }
 }
 
 void
 Player::tick()
 {
-    if (pthread_mutex_lock(&mutex) == 0) {
+    if (auto lock = MutexLock(mutex)) {
         for (int i=0; i<MIXER_MAX_CHANNELS; i++) {
             effects[i].tick();
         }
@@ -492,7 +488,6 @@ Player::tick()
                 background[i].stop();
             }
         }
-        pthread_mutex_unlock(&mutex);
     }
 }
 
@@ -504,7 +499,7 @@ Player::fill(short *stream, int len)
 
     memset(stream, 0, sizeof(short) * len);
 
-    if (pthread_mutex_lock(&mutex) == 0) {
+    if (auto lock = MutexLock(mutex)) {
         for (int i=0; i<MIXER_BACKGROUNDS; i++) {
             int index = i;
             if (!background[i].finished()) {
@@ -524,7 +519,6 @@ Player::fill(short *stream, int len)
                 filled[index] = false;
             }
         }
-        pthread_mutex_unlock(&mutex);
     }
 
     float amplitude_new = 0.0;

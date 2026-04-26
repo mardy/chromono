@@ -20,9 +20,13 @@
 
 #pragma once
 
-#if defined(__APPLE__)
+#if defined(USE_OPENGL_ES)
+#  include <GLES2/gl2.h>
+#elif defined(__APPLE__)
 #  define GL_SILENCE_DEPRECATION
 #  include <OpenGL/gl.h>
+#elif defined(_WIN32)
+#  include <GL/glew.h>
 #else
 #  define GL_GLEXT_PROTOTYPES
 #  include <GL/gl.h>

@@ -76,8 +76,14 @@ Texture::teximage(GLint format, const unsigned char *data)
     int w = 2;
     int h = 2;
 
+#if defined(BUILD_FOR_WII)
+    // Avoid using too much memory; textures don't need to be power-of-two
+    w = (m_width + 3) / 4 * 4;
+    h = (m_height + 3) / 4 * 4;
+#else
     while (m_width > 0 && w < m_width) w *= 2;
     while (m_height > 0 && h < m_height) h *= 2;
+#endif
 
     m_subwidth = (float)m_width / (float)w;
     m_subheight = (float)m_height / (float)h;
@@ -121,57 +127,5 @@ Texture::unbind(int unit)
     if (!bindings.empty()) {
         glBindTexture(GL_TEXTURE_2D, bindings.top()->m_texture_id);
     }
-}
-
-
-void
-Texture::save(const char *filename)
-{
-    bind();
-
-    int width = 0;
-    int height = 0;
-    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width);
-    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height);
-
-    int sub_width = width * m_subwidth;
-    int sub_height = height * m_subheight;
-
-    glPixelStorei(GL_PACK_ALIGNMENT, 1);
-    glPixelStorei(GL_PACK_LSB_FIRST, GL_TRUE);
-
-    char *texdata = new char[3 * width * height];
-    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, texdata);
-    unbind();
-
-    /**
-     * What we get in texdata is the screenshot, vertically flipped
-     * and in texture size (not in framebuffer size).
-     *
-     * +------------------------+
-     * |                 |      |
-     * |                 |      |
-     * +-----------------+ <- (sub_width, sub_height)
-     * |                        |
-     * +------------------------+ <- (width, height)
-     **/
-    int scanline_fb = sub_width * 3;
-    int scanline_tx = width * 3;
-
-    char *data = new char[3 * sub_width * sub_height];
-    for (int y=0; y<sub_height; y++) {
-        memcpy(data + y*scanline_fb,
-               texdata +  (sub_height-y)*scanline_tx,
-               scanline_fb);
-    }
-
-    delete [] texdata;
-
-    // data is (width x height) RGB (8-8-8) image data
-    FILE *fp = fopen(filename, "wb");
-    fwrite(data, 3, sub_width*sub_height, fp);
-    fclose(fp);
-
-    delete [] data;
 }
 

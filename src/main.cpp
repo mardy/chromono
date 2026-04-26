@@ -23,6 +23,10 @@
 #include "game.h"
 #include "util.h"
 
+#if defined(BUILD_FOR_WII)
+#  include "opengx_shaders.h"
+#endif
+
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -33,6 +37,7 @@ class PlatformPriv {
         PlatformPriv();
         ~PlatformPriv();
         bool process(Circle1DEventHandler *handler);
+        void add_controller(int joystick_index);
 
         static void audio_callback(void *userdata, Uint8 *stream, int len);
 
@@ -43,6 +48,7 @@ class PlatformPriv {
     private:
         audio_func_t audio_func;
         void *audio_func_user_data;
+        SDL_GameController *controller;
 
         friend class Platform;
 };
@@ -62,24 +68,42 @@ PlatformPriv::audio_callback(void *userdata, Uint8 *stream, int len)
 PlatformPriv::PlatformPriv()
     : audio_func(NULL)
     , audio_func_user_data(NULL)
+    , controller(NULL)
 {
-    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER);
+#if defined(BUILD_FOR_WII)
+    setup_opengx_shaders();
+    setenv("OPENGX_DEBUG", "warnings", 1);
+#endif
+
+    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER);
 
     SDL_AudioSpec desired;
     memset(&desired, 0, sizeof(desired));
     desired.freq = 22050;
-    desired.format = AUDIO_S16;
+    desired.format = SDL_BYTEORDER == SDL_BIG_ENDIAN ?
+        AUDIO_S16MSB : AUDIO_S16LSB;
     desired.channels = 1;
     desired.samples = Constants::DEFAULT_AUDIO_BUFFER;
     desired.callback = PlatformPriv::audio_callback;
     desired.userdata = this;
     SDL_OpenAudio(&desired, NULL);
 
+    int num_joysticks = SDL_NumJoysticks();
+    for (int i = 0; i < num_joysticks; i++) {
+        if (SDL_IsGameController(i)) {
+            add_controller(i);
+        }
+    }
+
     platform_priv = this;
 }
 
 PlatformPriv::~PlatformPriv()
 {
+    if (controller) {
+        SDL_GameControllerClose(controller);
+    }
+
     SDL_CloseAudio();
 
     SDL_Quit();
@@ -213,10 +237,31 @@ PlatformPriv::process(Circle1DEventHandler *handler)
                 height = event.window.data2;
                 static_cast<Game *>(handler)->resize(width, height);
             }
+        } else if (event.type == SDL_CONTROLLERDEVICEADDED) {
+            add_controller(event.cdevice.which);
+        } else if (event.type == SDL_CONTROLLERBUTTONDOWN) {
+            switch (event.cbutton.button) {
+            case SDL_CONTROLLER_BUTTON_BACK:
+                return false;
+            }
         }
     }
 
     return true;
+}
+
+void
+PlatformPriv::add_controller(int joystick_index)
+{
+    if (!controller) {
+        controller = SDL_GameControllerOpen(joystick_index);
+    }
+}
+
+bool
+Platform::is_big_endian()
+{
+    return SDL_BYTEORDER == SDL_BIG_ENDIAN;
 }
 
 void
@@ -241,41 +286,88 @@ Platform::set_fullscreen(bool fullscreen)
 const char *
 Platform::storage_folder()
 {
+#if defined(BUILD_FOR_WII)
+    const char *folder = "/apps/chromono/";
+    ::mkdir(folder, 0777);
+    return folder;
+#else
     char *folder = NULL;
 
     if (folder == NULL) {
         // https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
         const char *home = getenv("XDG_CONFIG_HOME");
         if (home != NULL) {
-            char *tmp;
-            if (asprintf(&tmp, "%s/chromono", home) != -1) {
-                folder = tmp;
-            }
+            std::string tmp = Util::format("%s/chromono", home);
+            folder = strdup(tmp.c_str());
         }
 
         if (folder == NULL) {
             home = getenv("HOME");
             if (home != NULL) {
-                char *tmp;
-                if (asprintf(&tmp, "%s/.config/chromono", home) != -1) {
-                    folder = tmp;
-                }
+                std::string tmp = Util::format("%s/.config/chromono", home);
+                folder = strdup(tmp.c_str());
             }
         }
 
         if (folder != NULL) {
+#if defined(_WIN32)
+            ::mkdir(folder);
+#else
             ::mkdir(folder, 0777);
+#endif
         }
     }
 
     return folder;
+#endif
 }
+
+class MutexPriv {
+public:
+    MutexPriv() : mutex(SDL_CreateMutex()) {}
+    ~MutexPriv() { SDL_DestroyMutex(mutex); }
+
+    bool lock() { return SDL_LockMutex(mutex) == 0; }
+    void unlock() { SDL_UnlockMutex(mutex); }
+
+private:
+    SDL_mutex *mutex;
+
+    MutexPriv(const MutexPriv &) = delete;
+    MutexPriv &operator=(const MutexPriv &) = delete;
+};
+
+Platform::Mutex::Mutex()
+    : priv(std::make_unique<MutexPriv>())
+{
+}
+
+Platform::Mutex::~Mutex()
+{
+}
+
+bool
+Platform::Mutex::lock()
+{
+    return priv->lock();
+}
+
+void
+Platform::Mutex::unlock()
+{
+    priv->unlock();
+}
+
 
 long
 Util::ticks()
 {
     return SDL_GetTicks();
 }
+
+#if defined(_WIN32)
+#  include <GL/glew.h>
+#endif
 
 int
 main(int argc, char *argv[])
@@ -284,12 +376,29 @@ main(int argc, char *argv[])
 
     priv.window = SDL_CreateWindow("chro.mono",
             SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+#if defined(BUILD_FOR_WII)
+            640, 480,
+#else
             Constants::WORLD_WIDTH, Constants::WORLD_HEIGHT,
+#endif
             SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 
+#if defined(USE_OPENGL_ES)
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+#else
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+#endif
+
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
     SDL_GLContext glcontext = SDL_GL_CreateContext(priv.window);
+
+#if defined(_WIN32)
+    glewInit();
+#endif
 
     SDL_GetWindowSize(priv.window, &(priv.width), &(priv.height));
 

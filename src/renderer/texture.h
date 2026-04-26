@@ -40,8 +40,6 @@ class Texture {
 
         GLuint id() { return m_texture_id; }
 
-        void save(const char *filename);
-
         void setalpha(int w, int h, const unsigned char *data) {
             resize(w, h);
             teximage(GL_ALPHA, data);

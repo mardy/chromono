@@ -24,12 +24,18 @@
 #include "sounds.h"
 #include "resources_util.h"
 
+#include <memory>
+
 // len == number of shorts in stream (sizeof(*stream) / sizeof(short))
 typedef void (*audio_func_t)(short *stream, int len, void *user_data);
 typedef void (*effect_func_t)(enum Sound::Effect sound, void *user_data);
 
+class MutexPriv;
+
 class Platform {
     public:
+        static bool is_big_endian();
+
         /* Storage */
         static const char *storage_folder();
 
@@ -45,9 +51,46 @@ class Platform {
 
         static void set_fullscreen(bool fullscreen);
 
+        /* Threading */
+        class Mutex final {
+        public:
+            Mutex();
+            ~Mutex();
+            bool lock();
+            void unlock();
+
+        private:
+            std::unique_ptr<MutexPriv> priv;
+        };
+
     private:
         static effect_func_t effect_func;
         static void *effect_func_user_data;
+};
+
+class MutexLock {
+public:
+    MutexLock(Platform::Mutex &mutex)
+        : mutex(mutex)
+        , locked(mutex.lock())
+    {
+    }
+
+    ~MutexLock()
+    {
+        if (locked) {
+            mutex.unlock();
+        }
+    }
+
+    operator bool() const { return locked; }
+
+private:
+    MutexLock(const MutexLock &) = delete;
+    MutexLock &operator=(const MutexLock &) = delete;
+
+    Platform::Mutex &mutex;
+    bool locked;
 };
 
 #endif /* SHADYPOSTPROC_PLATFORM_H */

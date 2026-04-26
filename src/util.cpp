@@ -36,6 +36,25 @@ Util::format_score_time(long score, char *string, size_t size)
             ms % 1000);
 }
 
+#if defined(_WIN32)
+static inline int vasprintf(char **str, const char *fmt, va_list ap)
+{
+    // Fallback value if unspecified
+    size_t size = 2048;
+
+    // Determine the resulting string length by formatting once
+    FILE *fp = fopen("/dev/null", "wb");
+    if (fp) {
+        size = vfprintf(fp, fmt, ap) + 1;
+        fclose(fp);
+    }
+
+    *str = (char *)malloc(size);
+    return vsnprintf(*str, size, fmt, ap);
+}
+#endif
+
+
 std::string
 Util::format(const char *fmt, ...)
 {
