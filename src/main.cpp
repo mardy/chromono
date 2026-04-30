@@ -109,6 +109,16 @@ PlatformPriv::~PlatformPriv()
     SDL_Quit();
 }
 
+static int rotation_from_orientation(Sint32 orientation)
+{
+    switch (orientation) {
+        case SDL_ORIENTATION_LANDSCAPE: return 90;
+        case SDL_ORIENTATION_LANDSCAPE_FLIPPED: return 270;
+        case SDL_ORIENTATION_PORTRAIT_FLIPPED: return 180;
+        default: return 0;
+    }
+}
+
 bool
 PlatformPriv::process(Circle1DEventHandler *handler)
 {
@@ -208,7 +218,7 @@ PlatformPriv::process(Circle1DEventHandler *handler)
                 evt.type = Circle1DEvent::MOUSEDOWN;
                 evt.x = event.button.x;
                 evt.y = event.button.y;
-                evt.finger = event.button.which;
+                //evt.finger = event.button.which;
                 evt.button = event.button.button;
             } else if (event.type == SDL_MOUSEMOTION) {
                 evt.type = Circle1DEvent::MOUSEMOTION;
@@ -226,7 +236,7 @@ PlatformPriv::process(Circle1DEventHandler *handler)
                 evt.type = Circle1DEvent::MOUSEUP;
                 evt.x = event.button.x;
                 evt.y = event.button.y;
-                evt.finger = event.button.which;
+                //evt.finger = event.button.which;
                 evt.button = event.button.button;
             }
 
@@ -236,6 +246,11 @@ PlatformPriv::process(Circle1DEventHandler *handler)
                 width = event.window.data1;
                 height = event.window.data2;
                 static_cast<Game *>(handler)->resize(width, height);
+            }
+        } else if (event.type == SDL_DISPLAYEVENT) {
+            if (event.display.event == SDL_DISPLAYEVENT_ORIENTATION) {
+                int rotation = rotation_from_orientation(event.display.data1);
+                static_cast<Game *>(handler)->set_orientation(rotation);
             }
         } else if (event.type == SDL_CONTROLLERDEVICEADDED) {
             add_controller(event.cdevice.which);
@@ -280,8 +295,12 @@ Platform::set_playing(bool enabled)
 void
 Platform::set_fullscreen(bool fullscreen)
 {
-    SDL_SetWindowFullscreen(platform_priv->window, fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
+    //SDL_SetWindowFullscreen(platform_priv->window, fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
 }
+
+#ifndef CONFIG_REL_PATH
+#define CONFIG_REL_PATH "chromono"
+#endif
 
 const char *
 Platform::storage_folder()
@@ -297,14 +316,14 @@ Platform::storage_folder()
         // https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
         const char *home = getenv("XDG_CONFIG_HOME");
         if (home != NULL) {
-            std::string tmp = Util::format("%s/chromono", home);
+            std::string tmp = Util::format("%s/" CONFIG_REL_PATH, home);
             folder = strdup(tmp.c_str());
         }
 
         if (folder == NULL) {
             home = getenv("HOME");
             if (home != NULL) {
-                std::string tmp = Util::format("%s/.config/chromono", home);
+                std::string tmp = Util::format("%s/.config/" CONFIG_REL_PATH, home);
                 folder = strdup(tmp.c_str());
             }
         }
@@ -381,7 +400,7 @@ main(int argc, char *argv[])
 #else
             Constants::WORLD_WIDTH, Constants::WORLD_HEIGHT,
 #endif
-            SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+            SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_FULLSCREEN_DESKTOP);
 
 #if defined(USE_OPENGL_ES)
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
@@ -401,9 +420,11 @@ main(int argc, char *argv[])
 #endif
 
     SDL_GetWindowSize(priv.window, &(priv.width), &(priv.height));
+    int rotation = rotation_from_orientation(SDL_GetDisplayOrientation(SDL_GetWindowDisplayIndex(priv.window)));
 
     Game game;
     game.resize(priv.width, priv.height);
+    game.set_orientation(rotation);
 
     while (true) {
         if (!platform_priv->process(&game)) {

@@ -36,9 +36,11 @@ LevelPreview::LevelPreview(OpenGLRenderer *renderer)
     , texcoord_loc(-1)
 {
     /* Aspect ratio must always be >= 1 (portrait->landscape rotation) */
+#if 0
     if (aspect < 1.f) {
         aspect = 1.f / aspect;
     }
+#endif
 
     vtxcoord_loc = program.attrib("vtxcoord");
     texcoord_loc = program.attrib("texcoord");

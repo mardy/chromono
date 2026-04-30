@@ -109,6 +109,9 @@ get_storage_filename()
 Game::Game()
     : tick_last(Util::ticks())
     , tick_accumulator(0)
+    , screen_width(0)
+    , screen_height(0)
+    , screen_rotation(0)
     , renderer(NULL)
     , world_offset(0.0, 0.0)
     , performance()
@@ -144,13 +147,40 @@ Game::Game()
 }
 
 void
-Game::resize(int width, int height)
+Game::update_renderer()
 {
     if (renderer) {
         delete renderer;
     }
 
-    renderer = new OpenGLRenderer(this, width, height);
+    int width, height;
+    if (screen_rotation == 90 || screen_rotation == 270) {
+        width = screen_height;
+        height = screen_width;
+    } else {
+        width = screen_width;
+        height = screen_height;
+    }
+    renderer = new OpenGLRenderer(this, width, height, screen_rotation);
+}
+
+void
+Game::resize(int width, int height)
+{
+    if (width != screen_width || height != screen_height) {
+        screen_width = width;
+        screen_height = height;
+        update_renderer();
+    }
+}
+
+void
+Game::set_orientation(int rotation)
+{
+    if (rotation != screen_rotation) {
+        screen_rotation = rotation;
+        update_renderer();
+    }
 }
 
 Game::~Game()

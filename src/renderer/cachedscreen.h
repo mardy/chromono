@@ -41,7 +41,7 @@ class CachedScreen : public Renderable {
         virtual void bind();
         virtual void unbind();
 
-        virtual void render(Texture *texture, bool rotated, Vec2 offset);
+        virtual void render(Texture *texture, int rotation, Vec2 offset);
 
     private:
         Program program;

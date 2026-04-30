@@ -60,14 +60,43 @@ Projection::Projection(int width, int height)
 }
 
 Mat4
-Projection::matrix(bool with_rotation)
+Projection::matrix(int rotation_degrees)
 {
-    return projection;
+    if (rotation_degrees == 0) return projection;
+    Mat4 rotated;
+    rotated = projection;
+    if (rotation_degrees == 90) {
+        rotated.m[0] = 0.f;
+        rotated.m[1] = -projection.m[5];
+        rotated.m[3] = -projection.m[7];
+        rotated.m[4] = projection.m[0];
+        rotated.m[5] = 0.f;
+        rotated.m[7] = projection.m[3];
+    } else if (rotation_degrees == 270) {
+        rotated.m[0] = 0.f;
+        rotated.m[1] = projection.m[5];
+        rotated.m[3] = projection.m[7];
+        rotated.m[4] = -projection.m[0];
+        rotated.m[5] = 0.f;
+        rotated.m[7] = -projection.m[3];
+    } else if (rotation_degrees == 180) {
+        rotated.m[0] = -projection.m[0];
+        rotated.m[5] = -projection.m[5];
+    }
+
+    return rotated;
 }
 
 Vec2
-Projection::screen2world(Vec2 screen)
+Projection::screen2world(Vec2 screen, int rotation_degrees)
 {
+    if (rotation_degrees == 90) {
+        screen = Vec2(size.x - screen.y, screen.x);
+    } else if (rotation_degrees == 270) {
+        screen = Vec2(screen.y, size.y - screen.x);
+    } else if (rotation_degrees == 180) {
+        screen = Vec2(size.x - screen.x, size.y - screen.y);
+    }
     return ((screen / size) * (world_size + world_offset * 2.f)) - world_offset;
 }
 

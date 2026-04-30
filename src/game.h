@@ -55,6 +55,9 @@ class Game : public Circle1DEventHandler {
         /* OpenGL viewport resized */
         void resize(int width, int height);
 
+        /* Orientation changed; angle is in degrees */
+        void set_orientation(int angle);
+
         /* Render a single frame */
         void render();
 
@@ -145,8 +148,15 @@ class Game : public Circle1DEventHandler {
         }
 
     private:
+        void update_renderer();
+
+    private:
         long tick_last;
         long tick_accumulator;
+
+        int screen_width;
+        int screen_height;
+        int screen_rotation;
 
         OpenGLRenderer *renderer;
         Vec2 world_offset;

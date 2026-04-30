@@ -83,16 +83,15 @@ class LevelLoadingTask : public LoadingTask {
         int level;
 };
 
-OpenGLRenderer::OpenGLRenderer(Game *game, int width, int height)
+OpenGLRenderer::OpenGLRenderer(Game *game, int width, int height, int rotation_degrees)
     : m_game(game)
-    , m_rotation_enabled(true)
+    , m_rotation_degrees(rotation_degrees)
     , m_projection(width, height)
     , m_width(width)
     , m_height(height)
     , m_programs()
     , m_programs_time()
-    , m_projection_mat(m_projection.matrix(true))
-    , m_nprojection_mat(m_projection.matrix(false))
+    , m_projection_mat(m_projection.matrix(m_rotation_degrees))
     , m_loading_tasks()
     , m_loading_tasks_total(0)
     , m_loading(this)
@@ -113,7 +112,7 @@ OpenGLRenderer::OpenGLRenderer(Game *game, int width, int height)
     , m_cached()
     , m_cached_current_fb(NULL)
     , m_is_offscreen(false)
-    , m_old_rotation_enabled(false)
+    , m_old_rotation_degrees(0)
 {
     game->set_offset(Vec2(m_projection.offset().x, m_projection.offset().y));
 
@@ -126,8 +125,17 @@ OpenGLRenderer::OpenGLRenderer(Game *game, int width, int height)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    glViewport(0, 0, m_width, m_height);
+    setup_viewport();
     glClearColor(0., 0., 0., 0.);
+}
+
+void OpenGLRenderer::setup_viewport()
+{
+    if (m_rotation_degrees == 0 || m_rotation_degrees == 180) {
+        glViewport(0, 0, m_width, m_height);
+    } else {
+        glViewport(0, 0, m_height, m_width);
+    }
 }
 
 OpenGLRenderer::~OpenGLRenderer()
@@ -393,7 +401,7 @@ OpenGLRenderer::register_program(Program *program)
     /* Projection matrix */
     GLint projection_loc = program->uniform("projection");
     if (projection_loc != -1) {
-        glUniformMatrix4fv(projection_loc, 1, GL_FALSE, m_rotation_enabled?m_projection_mat.m:m_nprojection_mat.m);
+        glUniformMatrix4fv(projection_loc, 1, GL_FALSE, m_projection_mat.m);
     }
 
     /* Some programs need time for animation */
@@ -406,11 +414,12 @@ OpenGLRenderer::register_program(Program *program)
 }
 
 void
-OpenGLRenderer::set_rotation_enabled(bool enabled)
+OpenGLRenderer::set_rotation(int rotation_degrees)
 {
-    if (m_rotation_enabled != enabled) {
+    if (m_rotation_degrees != rotation_degrees) {
         std::list<Program*>::iterator it;
 
+        m_projection_mat = m_projection.matrix(rotation_degrees);
         for (it=m_programs.begin(); it != m_programs.end(); ++it) {
             Program *program = *it;
 
@@ -418,12 +427,12 @@ OpenGLRenderer::set_rotation_enabled(bool enabled)
             GLint projection_loc = program->uniform("projection");
             if (projection_loc != -1) {
                 program->bind();
-                glUniformMatrix4fv(projection_loc, 1, GL_FALSE, enabled?m_projection_mat.m:m_nprojection_mat.m);
+                glUniformMatrix4fv(projection_loc, 1, GL_FALSE, m_projection_mat.m);
                 program->unbind();
             }
         }
 
-        m_rotation_enabled = enabled;
+        m_rotation_degrees = rotation_degrees;
     }
 }
 
@@ -510,7 +519,7 @@ OpenGLRenderer::draw_cached(void *handle, size_t len, Vec2 offset_world)
             offset_world.x /= Constants::WORLD_WIDTH;
             offset_world.y /= Constants::WORLD_HEIGHT;
 
-            m_cached_screen->render(fb->texture(), false, offset_world);
+            m_cached_screen->render(fb->texture(), m_rotation_degrees, offset_world);
             return;
         }
     }

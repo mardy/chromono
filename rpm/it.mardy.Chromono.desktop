@@ -1,0 +1,16 @@
+[Desktop Entry]
+Type=Application
+X-Nemo-Application-Type=silica-qt5
+Name=chro.mono
+Comment=Very circular color puzzle game
+Exec=/usr/bin/it.mardy.Chromono
+Icon=it.mardy.Chromono
+Categories=Game;
+
+[X-Application]
+Permissions=Audio;
+OrganizationName=it.mardy
+ApplicationName=Chromono
+
+[X-Aurora-Application]
+Orientation=Landscape;LandscapeInverted

@@ -1,5 +1,5 @@
 # 3.27 required for the GLES2 component of OpenGL
-cmake_minimum_required(VERSION 3.27)
+cmake_minimum_required(VERSION 3.19)
 
 project(chromono)
 
@@ -106,8 +106,11 @@ else()
 
   set(OpenGL_GL_PREFERENCE GLVND)
   if (USE_OPENGL_ES)
-    find_package(OpenGL REQUIRED COMPONENTS GLES2)
-    list(APPEND LIBRARIES OpenGL::GLES2)
+    #find_package(OpenGL REQUIRED COMPONENTS GLES2)
+    pkg_check_modules(GLES2 REQUIRED glesv2)
+    list(APPEND LIBRARIES ${GLES2_LIBRARIES})
+    include_directories(${GLES2_INCLUDE_DIRS})
+    link_directories(${GLES2_LIBRARY_DIRS})
     add_definitions(-DUSE_OPENGL_ES)
   else()
     find_package(OpenGL REQUIRED COMPONENTS OpenGL)

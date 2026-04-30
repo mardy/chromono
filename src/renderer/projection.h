@@ -32,9 +32,9 @@ class Projection {
     public:
         Projection(int width, int height);
 
-        Mat4 matrix(bool with_rotation);
+        Mat4 matrix(int rotation_degrees);
 
-        Vec2 screen2world(Vec2 screen);
+        Vec2 screen2world(Vec2 screen, int rotation_degrees);
 
         Vec2 offset() { return world_offset; }
 

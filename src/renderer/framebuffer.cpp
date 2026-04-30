@@ -62,6 +62,6 @@ void
 Framebuffer::unbind()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, m_oldFB0);
-    glViewport(0, 0, m_renderer->m_width, m_renderer->m_height);
+    m_renderer->setup_viewport();
 }
 

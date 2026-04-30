@@ -72,12 +72,16 @@ CachedScreen::unbind()
 }
 
 void
-CachedScreen::render(Texture *texture, bool rotated, Vec2 offset)
+CachedScreen::render(Texture *texture, int rotation, Vec2 offset)
 {
     activate();
 
-    if (rotated) {
+    if (rotation == 90) {
+        glUniform2f(offset_loc, -offset.y, offset.x);
+    } else if (rotation == 270) {
         glUniform2f(offset_loc, offset.y, -offset.x);
+    } else if (rotation == 180) {
+        glUniform2f(offset_loc, -offset.x, -offset.y);
     } else {
         glUniform2f(offset_loc, offset.x, offset.y);
     }

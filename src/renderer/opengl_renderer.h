@@ -62,11 +62,13 @@ typedef void (*render_cached_func_t)(OpenGLRenderer *renderer,
 
 class OpenGLRenderer : public Circle1DRenderer {
     public:
-        OpenGLRenderer(Game *game, int width, int height);
+        OpenGLRenderer(Game *game, int width, int height, int rotation);
         ~OpenGLRenderer();
 
+        void setup_viewport();
+
         Vec2 screen2world(Vec2 screen) {
-            return m_projection.screen2world(screen);
+            return m_projection.screen2world(screen, m_rotation_degrees);
         }
 
         void late_initialize(int phase); // Don't call this from outside
@@ -105,26 +107,25 @@ class OpenGLRenderer : public Circle1DRenderer {
 
         void transition(float value);
 
-        bool rotation_enabled() {
-            return m_rotation_enabled;
-        }
-
-        void set_rotation_enabled(bool enabled);
+        int rotation() const { return m_rotation_degrees; }
+        void set_rotation(int rotation_degrees);
 
         void register_program(Program *program);
         void unregister_program(Program *program);
 
         void start_offscreen(bool reset_rotation=true) {
             if (!m_is_offscreen) {
-                m_old_rotation_enabled = rotation_enabled();
+                m_old_rotation_degrees = m_rotation_degrees;
             }
 
-            set_rotation_enabled(!reset_rotation);
+            if (reset_rotation) {
+                set_rotation(0);
+            }
             m_is_offscreen = true;
         }
 
         void end_offscreen() {
-            set_rotation_enabled(m_old_rotation_enabled);
+            set_rotation(m_old_rotation_degrees);
             m_is_offscreen = false;
         }
 
@@ -142,7 +143,7 @@ class OpenGLRenderer : public Circle1DRenderer {
 
     private:
         Game *m_game;
-        bool m_rotation_enabled;
+        int m_rotation_degrees;
         Projection m_projection;
     public:
         int m_width;
@@ -151,7 +152,6 @@ class OpenGLRenderer : public Circle1DRenderer {
         std::list<Program*> m_programs;
         std::list< std::pair<Program*,GLint> > m_programs_time;
         Mat4 m_projection_mat;
-        Mat4 m_nprojection_mat;
 
         std::list<LoadingTask*> m_loading_tasks;
         int m_loading_tasks_total;
@@ -177,7 +177,7 @@ class OpenGLRenderer : public Circle1DRenderer {
         Framebuffer *m_cached_current_fb;
 
         bool m_is_offscreen;
-        bool m_old_rotation_enabled;
+        int m_old_rotation_degrees;
 };
 
 #endif /* SHADYPOSTPROC_OPENGL_RENDERER_H */
