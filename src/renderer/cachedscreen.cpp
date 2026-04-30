@@ -86,7 +86,6 @@ CachedScreen::render(Texture *texture, int rotation, Vec2 offset)
         glUniform2f(offset_loc, offset.x, offset.y);
     }
     glUniform2f(subsize_loc, texture->m_subwidth, texture->m_subheight);
-    glUniform1i(rotated_loc, rotated);
 
     texture->bind();
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
